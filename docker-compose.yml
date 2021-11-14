@@ -8,10 +8,10 @@ services:
             dockerfile: Dockerfile
             args:
                 WWWGROUP: '${WWWGROUP:-20}'
-        image: thor-8.0/app
+        image: auth-8.0/app
         environment:
             WWWUSER: '${WWWUSER:-501}'
-            LARAVEL_THOR: 1
+            LARAVEL_AUTH: 1
         volumes:
             - '.:/var/www/html'
         networks:
