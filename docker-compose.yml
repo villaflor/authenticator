@@ -1,0 +1,48 @@
+version: '3.9'
+services:
+    authenticator:
+        container_name: 'authenticator_app'
+        restart: unless-stopped
+        build:
+            context: ./docker/PHP8.0
+            dockerfile: Dockerfile
+            args:
+                WWWGROUP: '${WWWGROUP:-20}'
+        image: thor-8.0/app
+        environment:
+            WWWUSER: '${WWWUSER:-501}'
+            LARAVEL_THOR: 1
+        volumes:
+            - '.:/var/www/html'
+        networks:
+            - nginx_pm
+            - authenticator
+            - backend
+        healthcheck:
+            test: curl --fail -s http://localhost:80/ || exit 1
+            interval: 1m30s
+            timeout: 10s
+            retries: 3
+        depends_on:
+            - cron
+    cron:
+        container_name: 'authenticator_cron'
+        restart: unless-stopped
+        build:
+            context: ./docker/Crontab
+            dockerfile: Dockerfile
+        volumes:
+            - '.:/var/www/html'
+        networks:
+            - authenticator
+            - backend
+networks:
+    nginx_pm:
+        external:
+            name: nginx_pm_network
+    backend:
+        external:
+            name: backend_network
+    authenticator:
+        name: authenticator_network
+
